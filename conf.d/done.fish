@@ -85,5 +85,6 @@ end
 
 function __done_uninstall -e done_uninstall
     functions -e __done_ended
+    functions -e __done_is_tmux_window_active
     functions -e __done_humanize_duration
 end

@@ -35,7 +35,8 @@ function __done_is_tmux_window_active
 
     # tmux session attached and window is active -> no notification
     # all other combinations -> send notification
-    command tmux list-panes -a -F "#{session_attached} #{window_active} #{pane_pid}" | string match -q "1 1 $tmux_fish_pid"
+    set -l tmux_socket (echo $TMUX | cut -d ',' -f1)
+    command tmux -S $tmux_socket list-panes -a -F "#{session_attached} #{window_active} #{pane_pid}" | grep -q "1 1 $tmux_fish_pid"
 end
 
 function __done_ended --on-event fish_postexec

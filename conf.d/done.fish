@@ -51,17 +51,13 @@ function __done_ended --on-event fish_postexec
         set -l humanized_duration (__done_humanize_duration "$cmd_duration")
         set -l message (echo $argv[1] | base64)
 
-        set -l title "Done in $humanized_duration"
-        set -l duration 5000
+        set title "Failed after $humanized_duration"
+        set -l urgency 2
+        set -l duration 6000
 
-        if test $exit_status -ne 0
-            set title "Failed after $humanized_duration"
-            set duration 7000
-        end
-
-        set -l urgency 1
-        if test $exit_status -ne 0
-            set urgency 2
+        if test $exit_status -eq 0; or test $exit_status -eq 130
+            set title "Done in $humanized_duration"
+            set urgency 1
         end
 
         set id (date +%s%N)

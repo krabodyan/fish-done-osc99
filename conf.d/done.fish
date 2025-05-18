@@ -2,6 +2,8 @@ if not status is-interactive
     exit
 end
 
+set TMUX_SOCKET (echo $TMUX | cut -d ',' -f1)
+
 function __done_humanize_duration -a milliseconds
     set -l seconds (math --scale=0 "$milliseconds/1000" % 60)
     set -l minutes (math --scale=0 "$milliseconds/60000" % 60)
@@ -19,24 +21,7 @@ function __done_humanize_duration -a milliseconds
 end
 
 function __done_is_tmux_window_active
-    set -q fish_pid; or set -l fish_pid %self
-
-    # find the outermost process within tmux
-    # ppid != "tmux" -> pid = ppid
-    # ppid == "tmux" -> break
-    set tmux_fish_pid $fish_pid
-    while set tmux_fish_ppid (ps -o ppid= -p $tmux_fish_pid | string trim)
-        # remove leading hyphen so that basename does not treat it as an argument (e.g. -fish), and return only
-        # the actual command and not its arguments so that basename finds the correct command name.
-        # (e.g. '/usr/bin/tmux' from command '/usr/bin/tmux new-session -c /some/start/dir')
-        and ! string match -q "tmux*" (basename (ps -o command= -p $tmux_fish_ppid | string replace -r '^-' '' | string split ' ')[1])
-        set tmux_fish_pid $tmux_fish_ppid
-    end
-
-    # tmux session attached and window is active -> no notification
-    # all other combinations -> send notification
-    set -l tmux_socket (echo $TMUX | cut -d ',' -f1)
-    command tmux -S $tmux_socket list-panes -a -F "#{session_attached} #{window_active} #{pane_pid}" | grep -q "1 1 $tmux_fish_pid"
+    command tmux -S $TMUX_SOCKET display-message -pt "$TMUX_PANE" '#{window_active}' | grep -q 1
 end
 
 function __done_ended --on-event fish_postexec

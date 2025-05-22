@@ -12,10 +12,12 @@ function __done_humanize_duration -a milliseconds
     if test $hours -gt 0
         printf '%s' $hours'h '
     end
+
     if test $minutes -gt 0
         printf '%s' $minutes'm '
     end
-    if test $seconds -gt 0
+
+    if test $seconds -ge 0
         printf '%s' $seconds's'
     end
 end

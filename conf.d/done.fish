@@ -30,24 +30,21 @@ function __done_ended --on-event fish_postexec
     set -l exit_status $status
     set -q __done_min_cmd_duration; or set -g __done_min_cmd_duration 1000
     set -q cmd_duration; or set -l cmd_duration $CMD_DURATION
-    set -q __done_tmux_pane_format; or set -g __done_tmux_pane_format '[#{window_index}]'
 
     if test $cmd_duration
         and test $cmd_duration -gt $__done_min_cmd_duration
 
-        set -l humanized_duration (__done_humanize_duration "$cmd_duration")
-        set -l message (echo $argv[1] | base64)
-
-        set title "Failed after $humanized_duration"
         set -l urgency 2
         set -l duration 6000
+        set -l id (date +%s%N)
+        set -l message (echo $argv[1] | base64)
+        set -l title "Failed after $humanized_duration"
+        set -l humanized_duration (__done_humanize_duration "$cmd_duration")
 
         if test $exit_status -eq 0; or test $exit_status -eq 130
             set title "Done in $humanized_duration"
             set urgency 1
         end
-
-        set id (date +%s%N)
 
         if test -n "$TMUX"
             printf "\x1bPtmux;\x1b\x1b]99;i=$id:d=0;$title\x1b\\"
